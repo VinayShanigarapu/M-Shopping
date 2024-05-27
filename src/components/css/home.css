@@ -1,0 +1,31 @@
+.home {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    background-image: linear-gradient(to right, #FF4141, #ff4190, #4187ff);
+    height: 60vh;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 10px;
+}
+.container .title h1{
+    color: white;
+    text-align: left;
+    font-size: 35px;
+    margin-left: 40px;
+    margin-top: -50px;
+}
+.container .title p{
+    color: white;
+    font-size: 17px;
+    margin-left: 40px;
+}
+.container img{
+    height: 460px;
+}
