@@ -35,7 +35,7 @@ export const ProductDisplay = (props) => {
     useEffect(() => {
         const itemData = items.find(item => item.id === product.id.toString());
         setStock(itemData ? itemData.sizes : {});
-    }, [items, product.id.toString()]);
+    }, [product.id, items]);
 
     const handleSizeClick = (size) => {
         setSelectedSize(size);

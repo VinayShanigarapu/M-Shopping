@@ -307,6 +307,7 @@ const ShopContextProvider = (props) => {
         updateProductPrice,
         items,
         updateDateSet,
+        transactions,
         getTransactionsSummary,
         filterTransactionsByDate,
     }), [
@@ -322,9 +323,10 @@ const ShopContextProvider = (props) => {
         items,
         updateDateSet,
         transactions,
+        getTransactionsSummary,
         filterTransactionsByDate,
-        getTransactionsSummary, // Add these dependencies
     ]);
+
 
     return (
         <ShopContext.Provider value={contextValue}>
