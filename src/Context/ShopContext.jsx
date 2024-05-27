@@ -322,6 +322,8 @@ const ShopContextProvider = (props) => {
         items,
         updateDateSet,
         transactions,
+        filterTransactionsByDate,
+        getTransactionsSummary, // Add these dependencies
     ]);
 
     return (

@@ -30,7 +30,7 @@ export const ProductDisplay = (props) => {
         };
 
         fetchItemsData();
-    }, []);
+    }, [product.id]);
 
     useEffect(() => {
         const itemData = items.find(item => item.id === product.id.toString());
@@ -71,7 +71,7 @@ export const ProductDisplay = (props) => {
         };
 
         fetchCartData();
-    }, [setCartItems]);
+    }, [product.id, setCartItems]);
 
     useEffect(() => {
         if (showToast) {
