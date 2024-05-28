@@ -10,11 +10,12 @@ const ShopContextProvider = (props) => {
     const [products, setProducts] = useState([]);
     const [items, setItems] = useState([]);
     const [transactions, setTransactions] = useState([]);
+    const apiUrl = process.env.REACT_APP_API_URL || '';
 
     useEffect(() => {
         const fetchTransactionData = async () => {
             try {
-                const response = await axios.get('/api/cart-items');
+                const response = await axios.get(`${apiUrl}/api/cart-items`);
                 setTransactions(response.data);
             } catch (error) {
                 console.error('Error fetching Transaction data:', error);
@@ -22,12 +23,12 @@ const ShopContextProvider = (props) => {
         };
 
         fetchTransactionData();
-    }, []);
+    }, [apiUrl]);
 
     useEffect(() => {
         const fetchItemsData = async () => {
             try {
-                const response = await axios.get('/api/items');
+                const response = await axios.get(`${apiUrl}/api/items`);
                 setItems(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -36,12 +37,12 @@ const ShopContextProvider = (props) => {
         };
 
         fetchItemsData();
-    }, []);
+    }, [apiUrl]);
 
     useEffect(() => {
         const fetchCartData = async () => {
             try {
-                const response = await axios.get('/api/cart');
+                const response = await axios.get(`${apiUrl}/api/cart`);
                 setCartItems(response.data);
             } catch (error) {
                 console.error('Error fetching cart data:', error);
@@ -49,12 +50,12 @@ const ShopContextProvider = (props) => {
         };
 
         fetchCartData();
-    }, []);
+    }, [apiUrl]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('/api/items');
+                const response = await axios.get(`${apiUrl}/api/items`);
                 setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products data:', error);
@@ -62,7 +63,7 @@ const ShopContextProvider = (props) => {
         };
 
         fetchData();
-    }, []);
+    }, [apiUrl]);
 
     const getTotalCartAmount = () => {
         let totalAmount = 0;
@@ -85,7 +86,7 @@ const ShopContextProvider = (props) => {
 
     const updateCartItemQuantity = async (id, size, quantity) => {
         try {
-            await axios.put(`/api/cart/${id}`, { size, quantity });
+            await axios.put(`${apiUrl}/api/cart/${id}`, { size, quantity });
 
             setCartItems(prevCartItems =>
                 prevCartItems.map(item =>
@@ -101,7 +102,7 @@ const ShopContextProvider = (props) => {
 
     const removeCartItem = async (id, size) => {
         try {
-            await axios.delete(`/api/cart/${id}`, { data: { size } });
+            await axios.delete(`${apiUrl}/api/cart/${id}`, { data: { size } });
 
             setCartItems(prevCartItems =>
                 prevCartItems.filter(item => !(item.productId === id && item.size === size))
@@ -133,7 +134,7 @@ const ShopContextProvider = (props) => {
                 return sizeObj;
             });
 
-            await axios.put(`/api/items/${productId}`, {
+            await axios.put(`${apiUrl}/api/items/${productId}`, {
                 sizes: updatedSizes,
             });
 
@@ -158,7 +159,7 @@ const ShopContextProvider = (props) => {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-            await axios.put(`/api/items/${productId}`, {
+            await axios.put(`${apiUrl}/api/items/${productId}`, {
                 price: newPrice,
             });
 
@@ -268,7 +269,7 @@ const ShopContextProvider = (props) => {
 
             for (const productId in productUpdates) {
                 const updatedProduct = productUpdates[productId];
-                await axios.put(`/api/items/${productId}`, {
+                await axios.put(`${apiUrl}/api/items/${productId}`, {
                     sizes: updatedProduct.sizes,
                 });
             }
