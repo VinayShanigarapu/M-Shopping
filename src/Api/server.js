@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config(); // Add this line to use dotenv
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,13 +13,11 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connection
-const uri = 'mongodb+srv://ShanigarapuVinay:vinayvirat9@cluster0.fuel9.mongodb.net/';
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const uri = process.env.MONGODB_URI; // Use environment variable for the URI
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB database connection established successfully'))
+    .catch((error) => console.error('MongoDB connection error:', error));
 
-const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log('MongoDB database connection established successfully');
-});
 const itemSchema = new mongoose.Schema({
     id: String,
     name: String,
@@ -30,7 +29,7 @@ const itemSchema = new mongoose.Schema({
 });
 
 const Item = mongoose.model('Item', itemSchema);
-// Cart schema and model
+
 const cartItemSchema = new mongoose.Schema({
     id: String,
     name: String,
@@ -80,14 +79,13 @@ app.post('/api/items', async (req, res) => {
     }
 });
 
-// Update item endpoint
 app.put('/api/items/:id', async (req, res) => {
     const { id } = req.params;
     const { sizes, price, total_quantity } = req.body;
 
     try {
         const item = await Item.findOneAndUpdate(
-            { id: parseInt(id) },
+            { id },
             { $set: { sizes, price, total_quantity } },
             { new: true }
         );
@@ -101,7 +99,6 @@ app.put('/api/items/:id', async (req, res) => {
         res.status(400).send('Error updating item');
     }
 });
-
 
 app.post('/api/cart', async (req, res) => {
     const cartItems = req.body;
@@ -149,13 +146,12 @@ app.get('/api/cart-items', async (req, res) => {
     }
 });
 
-// Update cart item
 app.put('/api/cart/:id', async (req, res) => {
     const { id } = req.params;
     const { size, quantity } = req.body;
 
     try {
-        const cartItem = await Cart.findOne({ productId: id, size: size });
+        const cartItem = await Cart.findOne({ productId: id, size });
         if (cartItem) {
             cartItem.quantity = quantity;
             await cartItem.save();
@@ -168,13 +164,12 @@ app.put('/api/cart/:id', async (req, res) => {
     }
 });
 
-// Delete cart item
 app.delete('/api/cart/:id', async (req, res) => {
     const { id } = req.params;
     const { size } = req.body;
 
     try {
-        const cartItem = await Cart.findOneAndDelete({ productId: id, size: size });
+        const cartItem = await Cart.findOneAndDelete({ productId: id, size });
         if (cartItem) {
             res.status(200).send('Cart item deleted successfully');
         } else {
@@ -193,7 +188,6 @@ app.delete('/api/cart', async (req, res) => {
         res.status(400).send('Error deleting cart items');
     }
 });
-
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('client/build'));
