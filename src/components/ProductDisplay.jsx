@@ -15,10 +15,12 @@ export const ProductDisplay = (props) => {
     const [stock, setStock] = useState({});
     const [isOutOfStock, setIsOutOfStock] = useState(false);
     const [databasePrice, setDatabasePrice] = useState();
+
+    const apiUrl = process.env.REACT_APP_API_URL || '';
     useEffect(() => {
         const fetchItemsData = async () => {
             try {
-                const response = await axios.get('/api/items');
+                const response = await axios.get(`${apiUrl}/api/items`);
                 setItems(response.data);
                 console.log(response.data)
                 const itemData = response.data.find(item => item.id === product.id.toString());
@@ -30,7 +32,7 @@ export const ProductDisplay = (props) => {
         };
 
         fetchItemsData();
-    }, [product.id]);
+    }, [product.id, apiUrl]);
 
     useEffect(() => {
         const itemData = items.find(item => item.id === product.id.toString());
@@ -63,7 +65,7 @@ export const ProductDisplay = (props) => {
     useEffect(() => {
         const fetchCartData = async () => {
             try {
-                const response = await axios.get('/api/cart');
+                const response = await axios.get(`${apiUrl}/api/cart`);
                 setCartItems(response.data);
             } catch (error) {
                 console.error('Error fetching cart data:', error);
@@ -71,7 +73,7 @@ export const ProductDisplay = (props) => {
         };
 
         fetchCartData();
-    }, [product.id, setCartItems]);
+    }, [product.id, setCartItems, apiUrl]);
 
     useEffect(() => {
         if (showToast) {
@@ -84,7 +86,7 @@ export const ProductDisplay = (props) => {
 
     const addCartItems = async (productData) => {
         try {
-            await axios.post('/api/cart', [productData]);
+            await axios.post(`${apiUrl}/api/cart`, [productData]);
             console.log('Cart items added successfully');
         } catch (error) {
             console.error('Error adding cart items:', error);

@@ -13,6 +13,7 @@ export const CartItems = () => {
     const {data_product, cartItems, getTotalCartAmount, updateCartItemQuantity, removeCartItem, updateDateSet } = useContext(ShopContext);
     const [showToast, setShowToast] = useState(false);
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
+    const apiUrl = process.env.REACT_APP_API_URL || '';
 
     const cartItemsWithDetails = cartItems.map(cartItem => {
         const product = data_product.find(product => product.id === Number(cartItem.productId));
@@ -61,7 +62,7 @@ export const CartItems = () => {
                 ...item,
                 dateTime: formattedDateTime
             }));
-            await axios.post('/api/cart-items', cartItemsWithDateTime);
+            await axios.post(`${apiUrl}/api/cart-items`, cartItemsWithDateTime);
             console.log('Cart items saved successfully');
         } catch (error) {
             console.error('Error saving cart items:', error);
@@ -70,7 +71,7 @@ export const CartItems = () => {
 
     const clearCart = async () => {
         try {
-            await axios.delete('/api/cart');
+            await axios.delete(`${apiUrl}/api/cart`);
             console.log('All cart items deleted successfully');
         } catch (error) {
             console.error('Error deleting cart items:', error);
