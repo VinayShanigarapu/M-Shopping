@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: m-shopping
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://ShanigarapuVinay:vinayvirat9@cluster0.fuel9.mongodb.net/
+      - key: PORT
+        value: 5000
