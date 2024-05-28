@@ -19,17 +19,15 @@ function AppRoutes() {
         <>
             {showHeader && <Header />}
             <Routes>
-                <Route path="/" element={<Home />}></Route>
-                <Route path="/boys" element={<ShopCategory category="boys" />}></Route>
-                <Route path="/admin" element={<Admin />}></Route>
-                <Route path="/girls" element={<ShopCategory category="girls" />}></Route>
-                <Route path="/sports" element={<ShopCategory category="sports" />}></Route>
-                <Route path="/sports/t-shirts" element={<SportsTshirts />}></Route>
-                <Route path="/product" element={<Product />}>
-                    <Route path=":productId" element={<Product />} />
-                </Route>
-                <Route path="/cart" element={<ShoppingCart />}></Route>
-                <Route path="/admin/login" element={<AdminLogin />}></Route>
+                <Route path="/" element={<Home />} />
+                <Route path="/boys" element={<ShopCategory category="boys" />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/girls" element={<ShopCategory category="girls" />} />
+                <Route path="/sports" element={<ShopCategory category="sports" />} />
+                <Route path="/sports/t-shirts" element={<SportsTshirts />} />
+                <Route path="/product/:productId" element={<Product />} />
+                <Route path="/cart" element={<ShoppingCart />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
             </Routes>
         </>
     );
@@ -44,5 +42,5 @@ export default function ShoppingApp() {
                 </BrowserRouter>
             </ShopContextProvider>
         </div>
-    )
+    );
 }

@@ -10,7 +10,7 @@ const ShopContextProvider = (props) => {
     const [products, setProducts] = useState([]);
     const [items, setItems] = useState([]);
     const [transactions, setTransactions] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL || '';
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
         const fetchTransactionData = async () => {
