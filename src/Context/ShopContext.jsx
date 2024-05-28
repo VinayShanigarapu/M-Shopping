@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import data_product from "../components/Assets/data";
 import { parse, format } from 'date-fns';
 import axios from "axios";
@@ -12,7 +12,7 @@ const ShopContextProvider = (props) => {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
-        const fetcTransactionData = async () => {
+        const fetchTransactionData = async () => {
             try {
                 const response = await axios.get('/api/cart-items');
                 setTransactions(response.data);
@@ -21,7 +21,7 @@ const ShopContextProvider = (props) => {
             }
         };
 
-        fetcTransactionData();
+        fetchTransactionData();
     }, []);
 
     useEffect(() => {
@@ -123,11 +123,9 @@ const ShopContextProvider = (props) => {
 
     const updateProductSize = async (productId, size, newQuantity) => {
         try {
-            // Find the product to update
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-            // Update the sizes array
             const updatedSizes = productToUpdate.sizes.map(sizeObj => {
                 if (sizeObj[size] !== undefined) {
                     return { ...sizeObj, [size]: newQuantity };
@@ -135,12 +133,10 @@ const ShopContextProvider = (props) => {
                 return sizeObj;
             });
 
-            // Update the product in the database
             await axios.put(`/api/items/${productId}`, {
                 sizes: updatedSizes,
             });
 
-            // Update the product in the state
             setProducts(prevProducts => {
                 return prevProducts.map(product => {
                     if (product.id === productId) {
@@ -159,16 +155,13 @@ const ShopContextProvider = (props) => {
 
     const updateProductPrice = async (productId, newPrice) => {
         try {
-            // Find the product to update
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-            // Update the product in the database
             await axios.put(`/api/items/${productId}`, {
                 price: newPrice,
             });
 
-            // Update the product in the state
             setProducts(prevProducts => {
                 return prevProducts.map(product => {
                     if (product.id === productId) {
@@ -185,7 +178,6 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    // Transaction Section
     const getTransactionsSummary = (date) => {
         const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
         const filteredTransactions = transactions.filter((transaction) => {
@@ -294,7 +286,8 @@ const ShopContextProvider = (props) => {
             console.error('Error updating product quantities:', error);
         }
     };
-    const contextValue = useMemo(() => ({
+
+    const contextValue = {
         data_product,
         cartItems,
         setCartItems,
@@ -310,23 +303,7 @@ const ShopContextProvider = (props) => {
         transactions,
         getTransactionsSummary,
         filterTransactionsByDate,
-    }), [
-        data_product,
-        cartItems,
-        getTotalCartAmount,
-        getTotalCartItems,
-        updateCartItemQuantity,
-        removeCartItem,
-        filterProducts,
-        updateProductSize,
-        updateProductPrice,
-        items,
-        updateDateSet,
-        transactions,
-        getTransactionsSummary,
-        filterTransactionsByDate,
-    ]);
-
+    };
 
     return (
         <ShopContext.Provider value={contextValue}>
