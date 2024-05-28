@@ -185,16 +185,11 @@ app.delete('/api/cart', async (req, res) => {
 });
 
 if (process.env.NODE_ENV === 'production') {
-    const buildPath = path.join(__dirname, 'build');
-    console.log('Serving static files from:', buildPath);
-    app.use(express.static(buildPath));
+    app.use(express.static(path.join(__dirname, 'build')));
     app.get('*', (req, res) => {
-        const indexPath = path.resolve(buildPath, 'index.html');
-        console.log('Serving index.html from:', indexPath);
-        res.sendFile(indexPath);
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
     });
 }
-
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
