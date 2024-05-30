@@ -37,7 +37,15 @@
     display: flex;
     justify-content: space-between;
     font-size: 10px;
+    margin-top: 5px;
+}
+.mode{
+    display: flex;
+    font-size: 10px;
     margin-bottom: 10px;
+}
+.mode .mode-category{
+    font-weight: 600;
 }
 
 .invoice-items {
@@ -70,5 +78,6 @@
 .invoice-total p {
     margin: 0;
     font-size: 12px;
+    margin-top: 5px;
     font-weight: bold;
 }

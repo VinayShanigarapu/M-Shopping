@@ -374,33 +374,6 @@
 	cursor: pointer;
 }
 
-.report-header-transaction {
-	height: 80px;
-	width: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 20px 20px 10px 20px;
-	border-bottom: 2px solid rgba(0, 20, 151, 0.59);
-}
-
-.report-body-transaction {
-	width: 135%;
-	padding: 20px;
-}
-
-.item1-transaction {
-	margin-top: 20px;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-	justify-content: start;
-	gap: 10px;
-}
-
-.item1-transaction>* {
-	margin-right: 120px;
-}
-
 .view1 {
 	height: 35px;
 	width: 90px;

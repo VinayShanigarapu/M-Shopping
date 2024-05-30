@@ -68,13 +68,21 @@ const ShopContextProvider = (props) => {
     const getTotalCartAmount = () => {
         let totalAmount = 0;
         for (const item of cartItems) {
-            const product = products.find(product => product.id.toString() === item.productId);
-            if (product) {
-                totalAmount += product.price * item.quantity;
+            const product = products.find(product => product.id === item.productId);
+            if (product && product.sizes[0]) {
+                totalAmount += product.sizes[0][item.size].price * item.quantity;
             }
         }
         return totalAmount;
     };
+
+    const getPriceByIdAndSize = (id, size) => {
+        if (products) {
+            const item = products.find(product => product.id === id);
+            if (item.sizes[0][size].price)
+                return item.sizes[0][size].price
+        }
+    }
 
     const getTotalCartItems = () => {
         let totalItem = 0;
@@ -123,19 +131,19 @@ const ShopContextProvider = (props) => {
     };
 
     const updateProductSize = async (productId, size, newQuantity) => {
+        console.log(newQuantity)
         try {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-            const updatedSizes = productToUpdate.sizes.map(sizeObj => {
-                if (sizeObj[size] !== undefined) {
-                    return { ...sizeObj, [size]: newQuantity };
-                }
-                return sizeObj;
-            });
+            const updatedSizes = { ...productToUpdate.sizes };
+            if (updatedSizes[0][size]) {
+                updatedSizes[0][size].quantity = newQuantity;
+            }
+            console.log(updatedSizes)
 
             await axios.put(`${apiUrl}/api/items/${productId}`, {
-                sizes: updatedSizes,
+                sizes: updatedSizes[0],
             });
 
             setProducts(prevProducts => {
@@ -154,13 +162,20 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    const updateProductPrice = async (productId, newPrice) => {
+    const updateProductPrice = async (productId, size, newPrice) => {
         try {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
+
+            const updatedPrice = { ...productToUpdate.sizes };
+            if (updatedPrice[0][size]) {
+                updatedPrice[0][size].price = newPrice;
+            }
+            console.log(updatedPrice)
+
             await axios.put(`${apiUrl}/api/items/${productId}`, {
-                price: newPrice,
+                sizes: updatedPrice[0],
             });
 
             setProducts(prevProducts => {
@@ -193,11 +208,14 @@ const ShopContextProvider = (props) => {
                     transactions: [],
                     totalQuantity: 0,
                     totalPrice: 0,
+                    mode: "",
                 };
             }
             acc[time].transactions.push(transaction);
             acc[time].totalQuantity += transaction.quantity;
             acc[time].totalPrice += transaction.subtotal;
+            if (transaction.mode)
+                acc[time].mode = transaction.mode;
             return acc;
         }, {});
 
@@ -241,29 +259,23 @@ const ShopContextProvider = (props) => {
 
         return sortedTransactions;
     };
-
     const updateDateSet = async (cartDetails) => {
         try {
             const productUpdates = {};
-            
+
             for (const cartItem of cartDetails) {
                 const { id, size, quantity } = cartItem;
                 const productToUpdate = products.find(product => Number(product.id) === id);
-                
-                if (productToUpdate) {
-                    const sizeObjIndex = productToUpdate.sizes.findIndex(sizeObj => sizeObj[size] !== undefined);
-                    if (sizeObjIndex !== -1) {
-                        if (!productUpdates[id]) {
-                            productUpdates[id] = { ...productToUpdate };
-                        }
-                        const updatedSizeObj = {
-                            ...productUpdates[id].sizes[sizeObjIndex],
-                            [size]: productToUpdate.sizes[sizeObjIndex][size] - quantity
-                        };
-                        productUpdates[id].sizes[sizeObjIndex] = updatedSizeObj;
 
-                        console.log(`Updating product ${id} size ${size} to quantity ${updatedSizeObj[size]}`);
+                if (productToUpdate) {
+                    const updatedSizes = { ...productToUpdate.sizes[0] };
+
+                    if (updatedSizes[size] !== undefined) {
+                        console.log(updatedSizes[size].quantity - quantity)
+                        updatedSizes[size].quantity = parseInt(parseInt(updatedSizes[size].quantity) - parseInt(quantity));
                     }
+
+                    productUpdates[id] = { ...productToUpdate, sizes: updatedSizes };
                 }
             }
 
@@ -288,6 +300,7 @@ const ShopContextProvider = (props) => {
         }
     };
 
+
     const contextValue = {
         data_product,
         cartItems,
@@ -304,6 +317,7 @@ const ShopContextProvider = (props) => {
         transactions,
         getTransactionsSummary,
         filterTransactionsByDate,
+        getPriceByIdAndSize
     };
 
     return (

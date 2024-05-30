@@ -14,6 +14,7 @@ export const CartItems = () => {
     const [showToast, setShowToast] = useState(false);
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const apiUrl = process.env.REACT_APP_API_URL || '';
+    const [Mode, setMode] = useState()
 
     const cartItemsWithDetails = cartItems.map(cartItem => {
         const product = data_product.find(product => product.id === Number(cartItem.productId));
@@ -56,11 +57,12 @@ export const CartItems = () => {
     const updateMainDataSet = async () => {
         updateDateSet(cartItemsWithDetails)
     };
-    const saveCartItems = async () => {
+    const saveCartItems = async (mode) => {
         try {
             const cartItemsWithDateTime = cartItemsWithDetails.map(item => ({
                 ...item,
-                dateTime: formattedDateTime
+                dateTime: formattedDateTime,
+                mode: mode
             }));
             await axios.post(`${apiUrl}/api/cart-items`, cartItemsWithDateTime);
             console.log('Cart items saved successfully');
@@ -78,8 +80,9 @@ export const CartItems = () => {
         }
     };
 
-    const proceedToCheckout = async () => {
+    const upiPayment = async () => {
         if (cartItemsWithDetails.length > 0) {
+            setMode("UPI")
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -90,15 +93,45 @@ export const CartItems = () => {
                 confirmButtonText: "Yes, proceed to checkout!"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    await saveCartItems();
-                    updateMainDataSet();
-                    await clearCart();
+                    await saveCartItems("UPI");
+                    await updateMainDataSet();
                     Swal.fire({
                         title: "Checked Out!",
                         text: "Your checkout process done.",
                         icon: "success"
-                    }).then(() => {
-                        window.location.reload()
+                    }).then( async () => {
+                        await clearCart();
+                        window.location.reload();
+                    });
+                    handlePayment();
+                }
+            });
+        } else {
+            setShowToast(true);
+        }
+    };
+    const cashOutPayment = async () => {
+        if (cartItemsWithDetails.length > 0) {
+            setMode("Cashout")
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "green",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, proceed to checkout!"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await saveCartItems("Cashout");
+                    await updateMainDataSet();
+                    Swal.fire({
+                        title: "Checked Out!",
+                        text: "Your checkout process done.",
+                        icon: "success"
+                    }).then( async () => {
+                        await clearCart();
+                        window.location.reload();
                     });
                     handlePayment();
                 }
@@ -170,9 +203,12 @@ export const CartItems = () => {
                             <h3>₹{totalAmount}</h3>
                         </div>
                     </div>
-                    <button onClick={proceedToCheckout}>PROCEED TO CHECKOUT</button>
+                    <div className='checkout'>
+                        <button onClick={upiPayment}>UPI</button>
+                        <button onClick={cashOutPayment}>Cash Out</button>
+                    </div>
                     <div style={{ display: 'none' }}>
-                        <Invoice ref={componentRef} invoiceData={{ items: cartItemsWithDetails }} totalAmount={totalAmount} />
+                        <Invoice ref={componentRef} invoiceData={{ items: cartItemsWithDetails }} totalAmount={totalAmount} Mode={Mode} />
                     </div>
                 </div>
             </div>

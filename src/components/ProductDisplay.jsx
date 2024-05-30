@@ -6,7 +6,7 @@ import axios from 'axios';
 
 export const ProductDisplay = (props) => {
     const { product } = props;
-    const { cartItems, setCartItems, updateCartItemQuantity } = useContext(ShopContext);
+    const { cartItems, setCartItems, updateCartItemQuantity, getPriceByIdAndSize } = useContext(ShopContext);
     const [items, setItems] = useState([]);
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedLength, setSelectedLength] = useState(null);
@@ -14,18 +14,18 @@ export const ProductDisplay = (props) => {
     const [showToast, setShowToast] = useState(false);
     const [stock, setStock] = useState({});
     const [isOutOfStock, setIsOutOfStock] = useState(false);
-    const [databasePrice, setDatabasePrice] = useState();
+    const [sizePrice, setSizePrice] = useState(product.price);
+    const [cartToast, setCartToast] = useState(false);
+    const [stockMessage, setStockMessage] = useState('');
 
     const apiUrl = process.env.REACT_APP_API_URL || '';
+
     useEffect(() => {
         const fetchItemsData = async () => {
             try {
                 const response = await axios.get(`${apiUrl}/api/items`);
                 setItems(response.data);
-                console.log(response.data)
-                const itemData = response.data.find(item => item.id === product.id.toString());
-                setDatabasePrice(itemData.price)
-
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching items data:', error);
             }
@@ -35,30 +35,45 @@ export const ProductDisplay = (props) => {
     }, [product.id, apiUrl]);
 
     useEffect(() => {
-        const itemData = items.find(item => item.id === product.id.toString());
-        setStock(itemData ? itemData.sizes : {});
+        if(items){
+            const itemData = items.find(item => item.id === product.id.toString());
+            setStock(itemData ? itemData.sizes : {});
+        }
     }, [product.id, items]);
 
-    const handleSizeClick = (size) => {
+    const handleSizeClick = async (size) => {
         setSelectedSize(size);
-        checkStock(size);
+        await checkStockAndPrice(size);
     };
 
-    const handleLengthClick = (length) => {
+    const handleLengthClick = async (length) => {
         setSelectedLength(length);
-        checkStock(`${length}*${selectedWaist}`);
+        const size = `${length}*${selectedWaist}`;
+        if(length && selectedWaist)
+        await checkStockAndPrice(size);
     };
 
-    const handleWaistClick = (waist) => {
+    const handleWaistClick = async (waist) => {
         setSelectedWaist(waist);
-        checkStock(`${selectedLength}*${waist}`);
+        const size = `${selectedLength}*${waist}`;
+        if(selectedLength && waist)
+        await checkStockAndPrice(size);
     };
 
-    const checkStock = (size) => {
-        if (stock[0][size] > 0) {
+    const checkStockAndPrice = async (size) => {
+        if (stock[0][size] && stock[0][size].quantity > 0) {
             setIsOutOfStock(false);
+            const quantity = stock[0][size].quantity;
+            if (quantity >=1 && quantity <= 9) {
+                setStockMessage(`Only ${quantity} pieces left!`);
+            } else {
+                setStockMessage('');
+            }
+            const price = await getPriceByIdAndSize(product.id.toString(), size);
+            setSizePrice(price);
         } else {
             setIsOutOfStock(true);
+            setStockMessage('');
         }
     };
 
@@ -82,7 +97,13 @@ export const ProductDisplay = (props) => {
             }, 5000);
             return () => clearTimeout(timer);
         }
-    }, [showToast]);
+        if (cartToast) {
+            const timer = setTimeout(() => {
+                setCartToast(false);
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [showToast,cartToast]);
 
     const addCartItems = async (productData) => {
         try {
@@ -111,7 +132,7 @@ export const ProductDisplay = (props) => {
         }
 
         const existingCartItem = cartItems.find(item => item.productId === product.id.toString() && item.size === finalSize);
-
+        
         if (existingCartItem) {
             const updatedProductData = {
                 ...existingCartItem,
@@ -123,14 +144,16 @@ export const ProductDisplay = (props) => {
                 productId: product.id,
                 name: product.name,
                 image: product.image,
-                price: databasePrice,
+                price: sizePrice, // Use the selected size price
                 quantity: 1,
                 size: finalSize,
             };
             await addCartItems(productData);
             setCartItems([...cartItems, productData]);
+            setCartToast(true)
         }
     };
+
     return (
         <div className='productdisplay'>
             <div className='productdisplay-left'>
@@ -150,7 +173,7 @@ export const ProductDisplay = (props) => {
                 <h1>{product.name}</h1>
 
                 <div className='productdisplay-right-prices'>
-                    <div className="productdisplay-right-price">₹{databasePrice}</div>
+                    <div className="productdisplay-right-price">₹{sizePrice}</div>
                 </div>
 
                 <div className="productdisplay-right-description">
@@ -163,6 +186,7 @@ export const ProductDisplay = (props) => {
                     <div className="productdisplay-right-sizes">
                         {product.category === "boys" && product.subcategory === "pre-primary" && product.name === "T-shirts" && ['1', '2', '3', '4', '5'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -171,6 +195,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "boys" && product.subcategory === "pre-primary" && product.name === "Shorts" && ['11', '12', '13', '14', '15'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -179,6 +204,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "boys" && product.subcategory === "primary" && product.name === "T-shirts" && ['4', '5', '6', '7', '8'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -187,6 +213,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "boys" && product.subcategory === "primary" && product.name === "Shorts" && ['16', '17', '18', '19', '20'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -195,6 +222,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "girls" && product.subcategory === "pre-primary" && product.name === "Frock" && ['1', '2', '3', '4', '5', '6'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -203,6 +231,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "girls" && product.subcategory === "primary" && product.name === "T-shirts" && ['3', '4', '5', '6', '7'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -215,6 +244,7 @@ export const ProductDisplay = (props) => {
                                     <h3>Length:</h3>
                                     {['17', '18', '19', '20', '21', '22', '23', '24'].map((length) => (
                                         <div
+                                            key={length}
                                             className={`size-option ${selectedLength === length ? 'selected' : ''}`}
                                             onClick={() => handleLengthClick(length)}
                                         >
@@ -226,6 +256,7 @@ export const ProductDisplay = (props) => {
                                     <h3>Waist:</h3>
                                     {['24', '26', '28', '30', '32', '34'].map((waist) => (
                                         <div
+                                            key={waist}
                                             className={`size-option ${selectedWaist === waist ? 'selected' : ''}`}
                                             onClick={() => handleWaistClick(waist)}
                                         >
@@ -237,6 +268,7 @@ export const ProductDisplay = (props) => {
                         )}
                         {product.category === "sports" && product.subcategory === "pre-primary" && product.name === "Sports T-shirts" && ['18', '20', '22', '24', '26', '28'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -245,6 +277,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "sports" && product.subcategory === "pre-primary" && product.name === "Sports Shorts" && ['11', '12', '13', '14', '15', '16'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -253,6 +286,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "sports" && product.subcategory === "primary" && product.name === "Sports Trousers" && ['3', '4', '5', '6', '7'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -261,6 +295,7 @@ export const ProductDisplay = (props) => {
                         ))}
                         {product.category === "sports" && product.subcategory === "color" && (product.name).includes("Sports T-shirts") && ['3', '4', '5', '6', '7'].map((size) => (
                             <div
+                                key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                                 onClick={() => handleSizeClick(size)}
                             >
@@ -270,6 +305,7 @@ export const ProductDisplay = (props) => {
                     </div>
                 </div>
                 <div className="productdisplay-right-add-to-cart">
+                    {stockMessage && <div className="stock-message out-of-stock-message">{stockMessage}</div>}
                     {isOutOfStock && <div className="out-of-stock-message">Temporarily out of stock.</div>}
 
                     <button
@@ -285,6 +321,7 @@ export const ProductDisplay = (props) => {
                 <p className='productdisplay-right-category'><span>Tags:</span> Modern, {product.name}, Cool, Comfort</p>
             </div>
             {showToast && <Toast message="Please select all required sizes." toastType="warning" duration={5000} />}
+            {cartToast && <Toast message="Item added to cart Successfully." toastType="success" duration={1500} />}
         </div>
     );
 }

@@ -1,8 +1,7 @@
 import React, { useContext, useState } from 'react';
-import '../css/admin.css';
 import Swal from 'sweetalert2';
-import { entries } from 'lodash';
 import { ShopContext } from '../../Context/ShopContext';
+import '../css/admin.css';
 
 const SportsProduct = () => {
     const { filterProducts, updateProductSize, updateProductPrice } = useContext(ShopContext);
@@ -23,52 +22,56 @@ const SportsProduct = () => {
     const PrimarySportsShorts = filterProducts('sports', 'primary', 'Sports Trousers');
 
 
-    const handleUpdateSize = async (productId, size, newQuantity) => {
+    const handleUpdate = async (productId, size) => {
         const { value: formValues } = await Swal.fire({
-            title: 'Modify Quantity',
+            title: 'Modify Quantity or Price',
             html: `
-                <input id="swal-input1" required placeholder="Quantity" type="number" class="swal2-input" min="1">
+                <input id="swal-input-quantity" placeholder="Quantity" type="number" class="swal2-input">
+                <input id="swal-input-price" placeholder="Price" type="number" class="swal2-input" min="1">
             `,
             focusConfirm: false,
             showCancelButton: true,
             preConfirm: () => {
-                const quantity = document.getElementById('swal-input1').value;
-                if (!quantity || quantity < 0) {
-                    Swal.showValidationMessage('Quantity must be a positive number');
+                const quantity = document.getElementById('swal-input-quantity').value;
+                const price = document.getElementById('swal-input-price').value;
+                if (!quantity && !price) {
+                    Swal.showValidationMessage('Please enter either quantity or price');
                     return false;
                 }
-                return [quantity];
-            },
-        });
-    
-        if (formValues) {
-            const [newQuantity] = formValues;
-            updateProductSize(productId, size, parseInt(newQuantity));
-        }
-    };
-    
-    const handleUpdatePrice = async (productId) => {
-        const { value: formValues } = await Swal.fire({
-            title: 'Modify Price',
-            html: `
-                <input id="swal-input1" required placeholder="Price" type="number" class="swal2-input" min="1">
-            `,
-            focusConfirm: false,
-            showCancelButton: true,
-            preConfirm: () => {
-                    const price = document.getElementById('swal-input1').value;
-                    if (!price || price <= 0) {
-                        Swal.showValidationMessage('Price must be a positive number');
-                        return false;
-                    }
-                    return [price];
+                if (quantity && quantity<0) {
+                    Swal.showValidationMessage('Quantity should not be negative.');
+                    return false;
+                }
+                if (price && price<=0) {
+                    Swal.showValidationMessage('Price should be more than zero.');
+                    return false;
+                }
+                return { quantity: parseInt(quantity), price: parseInt(price) };
             },
         });
 
         if (formValues) {
-            const [newPrice] = formValues;
-            updateProductPrice(productId, parseInt(newPrice));
+            const { quantity, price } = formValues;
+            if (quantity!==undefined) {
+                updateProductSize(productId, size, quantity);
+            }
+            if (price) {
+                updateProductPrice(productId, size, price);
+            }
         }
+    };
+    const renderProductList = (products) => {
+        return products.map((product) => (
+            Object.entries(product.sizes[0]).map(([size, { price, quantity }]) => (
+                <div className="item1" key={`${product.id}-${size}`}>
+                    <h3 className="t-op-nextlvl">{product.name}</h3>
+                    <h3 className="t-op-nextlvl">{size}</h3>
+                    <h3 className="t-op-nextlvl">{price}</h3>
+                    <h3 className="t-op-nextlvl">{quantity}</h3>
+                    <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdate(product.id, size)}>Update</h3>
+                </div>
+            ))
+        ));
     };
 
     return (
@@ -94,7 +97,6 @@ const SportsProduct = () => {
                     <div className="report-container">
                         <div className="report-header">
                             <h1 className="recent-Articles">Nursery to Class 2 Sports T-Shirts</h1>
-                            <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdatePrice(prePrimarySportsTshirts[0].id)}>Update Price</h3>
                         </div>
 
                         <div className="report-body">
@@ -105,25 +107,13 @@ const SportsProduct = () => {
                                 <h3 className="t-op">Quantity</h3>
                                 <h3 className="t-op">Modify</h3>
                             </div>
-                            {prePrimarySportsTshirts.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
+                            {renderProductList(prePrimarySportsTshirts)}
                         </div>
                     </div>
 
                     <div className="report-container">
                         <div className="report-header">
                             <h1 className="recent-Articles">Nursery to Class 2 Sports Shorts</h1>
-                            <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdatePrice(prePrimarySportsShorts[0].id)}>Update Price</h3>
                         </div>
 
                         <div className="report-body">
@@ -134,18 +124,7 @@ const SportsProduct = () => {
                                 <h3 className="t-op">Quantity</h3>
                                 <h3 className="t-op">Modify</h3>
                             </div>
-                            {prePrimarySportsShorts.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
+                            {renderProductList(prePrimarySportsShorts)}
                         </div>
                     </div>
                 </>
@@ -156,7 +135,6 @@ const SportsProduct = () => {
                     <div className="report-container">
                         <div className="report-header">
                             <h1 className="recent-Articles">3rd to 6th Class Sports Trousers</h1>
-                            <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdatePrice(PrimarySportsShorts[0].id)}>Update Price</h3>
                         </div>
 
                         <div className="report-body">
@@ -167,25 +145,13 @@ const SportsProduct = () => {
                                 <h3 className="t-op">Quantity</h3>
                                 <h3 className="t-op">Modify</h3>
                             </div>
-                            {PrimarySportsShorts.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
+                            {renderProductList(PrimarySportsShorts)}
                         </div>
                     </div>
 
                     <div className="report-container">
                         <div className="report-header">
                             <h1 className="recent-Articles">3rd to 6th Class Sports T-Shirts  </h1>
-                            <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdatePrice(PrimarySportsTshirtsYellow[0].id)}>Update Price</h3>
                         </div>
 
                         <div className="report-body">
@@ -196,68 +162,15 @@ const SportsProduct = () => {
                                 <h3 className="t-op">Quantity</h3>
                                 <h3 className="t-op">Modify</h3>
                             </div>
-                            {PrimarySportsTshirtsYellow.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
+                            {renderProductList(PrimarySportsTshirtsYellow)}
 
-                            {PrimarySportsTshirtsRed.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
+                            {renderProductList(PrimarySportsTshirtsRed)}
 
+                            {renderProductList(PrimarySportsTshirtsBlue)}
 
-
-                            {PrimarySportsTshirtsBlue.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
-
-
-                            {PrimarySportsTshirtsGreen.map((product) => (
-                                product.sizes[0] &&
-                                entries(product.sizes[0]).map(([size, quantity]) => (
-                                    <div className="item1" key={`${product.id}-${size}`}>
-                                        <h3 className="t-op-nextlvl">{product.name}</h3>
-                                        <h3 className="t-op-nextlvl">{size}</h3>
-                                        <h3 className="t-op-nextlvl">{product.price}</h3>
-                                        <h3 className="t-op-nextlvl">{quantity}</h3>
-                                        <h3 className="t-op-nextlvl label-tag" onClick={() => handleUpdateSize(product.id, size)}  >Update</h3>
-                                    </div>
-                                ))
-                            ))}
-
-
-
-
+                            {renderProductList(PrimarySportsTshirtsGreen)}
                         </div>
                     </div>
-
-
                 </>
             )}
         </>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Logo from './Assets/logo.png';
 import './css/Invoice.css';
 
-const Invoice = React.forwardRef(({ invoiceData, totalAmount }, ref) => {
+const Invoice = React.forwardRef(({ invoiceData, totalAmount, Mode }, ref) => {
     const { items } = invoiceData;
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -37,6 +37,9 @@ const Invoice = React.forwardRef(({ invoiceData, totalAmount }, ref) => {
             <div className="dateAndTime">
                 <p>Date : {formattedDateTime}</p>
                 <p>Reason : Invoice</p>
+            </div>
+            <div className="mode">
+                <p className='mode-category'><span>Mode : </span>{Mode}</p>
             </div>
             <div className="invoice-items">
                 <table>

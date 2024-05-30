@@ -37,7 +37,8 @@ const cartItemSchema = new mongoose.Schema({
     price: Number,
     quantity: Number,
     subtotal: Number,
-    dateTime: String
+    dateTime: String,
+    mode: String
 });
 
 const CartItem = mongoose.model('CartItem', cartItemSchema);
