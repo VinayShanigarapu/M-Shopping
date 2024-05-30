@@ -5,7 +5,6 @@ import Item from './Item'
 
 export default function ShopCategory(props){
     const {data_product} = useContext(ShopContext);
-    console.log(data_product)
     return (
         <div className="shop-category">
             <div className='shopcategory-name'>

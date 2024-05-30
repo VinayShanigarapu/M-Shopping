@@ -131,7 +131,6 @@ const ShopContextProvider = (props) => {
     };
 
     const updateProductSize = async (productId, size, newQuantity) => {
-        console.log(newQuantity)
         try {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
@@ -172,7 +171,6 @@ const ShopContextProvider = (props) => {
             if (updatedPrice[0][size]) {
                 updatedPrice[0][size].price = newPrice;
             }
-            console.log(updatedPrice)
 
             await axios.put(`${apiUrl}/api/items/${productId}`, {
                 sizes: updatedPrice[0],
@@ -271,7 +269,6 @@ const ShopContextProvider = (props) => {
                     const updatedSizes = { ...productToUpdate.sizes[0] };
 
                     if (updatedSizes[size] !== undefined) {
-                        console.log(updatedSizes[size].quantity - quantity)
                         updatedSizes[size].quantity = parseInt(parseInt(updatedSizes[size].quantity) - parseInt(quantity));
                     }
 

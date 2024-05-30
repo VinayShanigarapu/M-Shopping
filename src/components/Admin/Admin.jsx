@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import '../css/admin.css';
 import { useNavigate } from 'react-router-dom';
-import s2 from '../Assets/admin-sports.png';
-import t1 from '../Assets/admin-transaction.png';
+import Swal from 'sweetalert2';
 import boy from '../Assets/admin-boy.png';
 import girl from '../Assets/admin-girl.png';
+import s2 from '../Assets/admin-sports.png';
+import t1 from '../Assets/admin-transaction.png';
+import '../css/admin.css';
 import BoyProducts from "./BoyProducts";
 import GirlProducts from "./GirlProducts";
 import SportsProduct from "./SportsProduct";
-import ProductsMain from '../Assets/ProductsMain'
 import Transaction from './Transactions';
-import Swal from 'sweetalert2';
-import axios from "axios";
 
 const Admin = () => {
     const navigate = useNavigate();
@@ -53,26 +51,12 @@ const Admin = () => {
         }
     };
 
-    const addItems = async (productData) => {
-        try {
-            await axios.post('/api/items', [productData]);
-            console.log('items added successfully');
-        } catch (error) {
-            console.error('Error adding items:', error);
-        }
-    };
-
-    const handleAddToCart = async () => {
-        await addItems(ProductsMain)
-    }
-
     return (
         <div className="admin-dashboard">
             {/* for header part */}
             <header>
                 <div className="logosec">
                     <div className="logo">Admin Dashboard</div>
-                    <button onClick={handleAddToCart}>Click Me</button>
                 </div>
                 <div className="message">
                     <div className="dp">
