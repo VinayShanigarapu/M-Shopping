@@ -1,14 +1,17 @@
-import mens_t_shirt from './mens-t-shirt.jpg'
-import mens_shorts from './mens-shorts.jpg'
-import womens_t_shirt from './womens-t-shirt.jpg'
-import mens_t_shirt_2 from './mens-t-shirt-2.png'
-import mens_shorts_2 from './mens-shorts-2.png'
-import womens_t_shirt_2 from './womens-t-shirt-2.png'
-import womens_shorts_2 from './womens-shorts-2.png'
-import sports_t_shirt from './sports-t-shirt.jpg'
-import sports_t_shirt_2 from './sports-t-shirt-2.jpeg'
-import sports_shorts from './sports-shorts.jpg'
+import boys_t_shirt from './boys-t-shirt.png'
+import boys_shorts from './boys_shorts.png'
+import girls_frock from './girls_frock.png'
+import boys_t_shirt2 from './boys-t-shirt2.png'
+import boys_shorts2 from './boys_shorts2.png'
+import girls_t_shirt from './girls_t-shirt.png'
+import girls_skirt from './girls-skirt.png'
+import sports_t_shirt from './sports-t-shirts.png'
+import sports_shorts from './sports_shorts.png'
 import sports_trousers from './sports-trousers.png'
+import sports_t_shirt_red from './sports_t-shirt_red.png'
+import sports_t_shirt_blue from './sports_t-shirt_blue.png'
+import sports_t_shirt_green from './sports_t-shirt_green.png'
+import sports_t_shirt_yellow from './sports_t-shirt_yellow.png'
 
 let data_product = [
   {
@@ -16,21 +19,21 @@ let data_product = [
     name:"T-shirts",
     category: "boys",
     subcategory: "pre-primary",
-    image:mens_t_shirt,
+    image:boys_t_shirt,
     price:50.00,
   },
   {id:2,
     name:"Shorts",
     category: "boys",
     subcategory: "pre-primary",
-    image:mens_shorts,
+    image:boys_shorts,
     price:85.00,
   },
   {id:3,
     name:"Frock",
     category: "girls",
     subcategory: "pre-primary",
-    image:womens_t_shirt,
+    image:girls_frock,
     price:60.00,
   },
   {
@@ -38,28 +41,28 @@ let data_product = [
     name:"T-shirts",
     category: "boys",
     subcategory: "primary",
-    image:mens_t_shirt_2,
+    image:boys_t_shirt2,
     price:150.00,
   },
   {id:5,
     name:"Shorts",
     category: "boys",
     subcategory: "primary",
-    image:mens_shorts_2,
+    image:boys_shorts2,
     price:185.00,
   },
   {id:6,
     name:"T-shirts",
     category: "girls",
     subcategory: "primary",
-    image:womens_t_shirt_2,
+    image:girls_t_shirt,
     price:160.00,
   },
   {id:7,
     name:"Skirts",
     category: "girls",
     subcategory: "primary",
-    image:womens_shorts_2,
+    image:girls_skirt,
     price:200.00,
   },
   {
@@ -81,7 +84,7 @@ let data_product = [
     name:"Sports T-shirts",
     category: "sports",
     subcategory: "primary",
-    image:sports_t_shirt_2,
+    image:sports_t_shirt_red,
     price:160.00,
   },
   {id:11,
@@ -95,28 +98,28 @@ let data_product = [
     name:"Sports T-shirts (Yellow)",
     category: "sports",
     subcategory: "color",
-    image:sports_t_shirt_2,
+    image:sports_t_shirt_yellow,
     price:160.00,
   },
   {id:13,
     name:"Sports T-shirts (Red)",
     category: "sports",
     subcategory: "color",
-    image:sports_t_shirt_2,
+    image:sports_t_shirt_red,
     price:160.00,
   },
   {id:14,
     name:"Sports T-shirts (Green)",
     category: "sports",
     subcategory: "color",
-    image:sports_t_shirt_2,
+    image:sports_t_shirt_green,
     price:160.00,
   },
   {id:15,
     name:"Sports T-shirts (Blue)",
     category: "sports",
     subcategory: "color",
-    image:sports_t_shirt_2,
+    image:sports_t_shirt_blue,
     price:160.00,
   },
 ];

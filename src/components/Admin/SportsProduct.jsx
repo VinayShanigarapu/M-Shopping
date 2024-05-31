@@ -38,24 +38,27 @@ const SportsProduct = () => {
                     Swal.showValidationMessage('Please enter either quantity or price');
                     return false;
                 }
-                if (quantity && quantity<0) {
+                if (quantity && quantity < 0) {
                     Swal.showValidationMessage('Quantity should not be negative.');
                     return false;
                 }
-                if (price && price<=0) {
+                if (price && price <= 0) {
                     Swal.showValidationMessage('Price should be more than zero.');
                     return false;
                 }
-                return { quantity: parseInt(quantity), price: parseInt(price) };
+                return { 
+                    quantity: quantity ? parseInt(quantity) : undefined, 
+                    price: price ? parseInt(price) : undefined 
+                };
             },
         });
-
+    
         if (formValues) {
             const { quantity, price } = formValues;
-            if (quantity!==undefined) {
+            if (quantity !== undefined) {
                 updateProductSize(productId, size, quantity);
             }
-            if (price) {
+            if (price !== undefined) {
                 updateProductPrice(productId, size, price);
             }
         }

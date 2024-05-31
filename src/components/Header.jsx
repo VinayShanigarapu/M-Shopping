@@ -4,6 +4,7 @@ import logo from "./Assets/logo.png";
 import cart_icon from "./Assets/cart_icon.png";
 import "./css/Header.css";
 import { ShopContext } from "../Context/ShopContext";
+import Swal from "sweetalert2";
 
 export default function Header() {
     const { getTotalCartItems } = useContext(ShopContext);
@@ -16,7 +17,7 @@ export default function Header() {
         if (path === "/boys") setMenu("boys");
         else if (path === "/girls") setMenu("girls");
         else if (path === "/sports") setMenu("sports");
-        else if (path === "/") setMenu("home");
+        else if (path === "/home") setMenu("home");
         else setMenu("");
     }, [location]);
 
@@ -26,7 +27,15 @@ export default function Header() {
           window.location.reload();
         }, 1);
     };
+    const handleSignout = () => {
 
+        Swal.fire({
+            title: "Signed Out Successfully.",
+            icon: "success"
+        });
+        navigate('/');
+       
+    };
     return (
         <div className="navbar">
             <div className="nav-logo">
@@ -34,7 +43,7 @@ export default function Header() {
             </div>
             <ul className="nav-menu">
                 <li onClick={() => { setMenu("home") }}> 
-                    <Link to="/">Home</Link>
+                    <Link to="/home">Home</Link>
                     {menu === "home" ? <hr /> : null}
                 </li>
                 <li onClick={() => { setMenu("boys") }}> 
@@ -51,8 +60,8 @@ export default function Header() {
                 </li>
             </ul>
             <div className="nav-login-cart">
-                <Link to="/admin/login" onClick={() => { setMenu("") }}>
-                    <button>Admin</button>
+                <Link to="/" onClick={handleSignout}>
+                    <button>Logout</button>
                 </Link>
                 <Link to="/cart" onClick={() => { setMenu(""); handleClick()}}>
                     <img src={cart_icon} alt="" />

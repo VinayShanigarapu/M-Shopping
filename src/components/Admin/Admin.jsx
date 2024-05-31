@@ -51,6 +51,19 @@ const Admin = () => {
         }
     };
 
+    // const addItems = async (productData) => {
+    //     try {
+    //         await axios.post('/api/items', [productData]);
+    //         console.log('items added successfully');
+    //     } catch (error) {
+    //         console.error('Error adding items:', error);
+    //     }
+    // };
+
+    // const handleAddToCart = async () => {
+    //     await addItems(ProductsMain)
+    // }
+
     return (
         <div className="admin-dashboard">
             {/* for header part */}

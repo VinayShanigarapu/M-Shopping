@@ -10,7 +10,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export const CartItems = () => {
-    const {data_product, cartItems, getTotalCartAmount, updateCartItemQuantity, removeCartItem, updateDateSet } = useContext(ShopContext);
+    const { data_product, cartItems, getTotalCartAmount, updateCartItemQuantity, removeCartItem, updateDateSet } = useContext(ShopContext);
     const [showToast, setShowToast] = useState(false);
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const apiUrl = process.env.REACT_APP_API_URL || '';
@@ -18,7 +18,7 @@ export const CartItems = () => {
 
     const cartItemsWithDetails = cartItems.map(cartItem => {
         const product = data_product.find(product => product.id === Number(cartItem.productId));
-        return product ? { ...product,price: cartItem.price, quantity: cartItem.quantity, size: cartItem.size, subtotal: cartItem.quantity * cartItem.price } : null;
+        return product ? { ...product, price: cartItem.price, quantity: cartItem.quantity, size: cartItem.size, subtotal: cartItem.quantity * cartItem.price } : null;
     }).filter(item => item !== null);
 
     useEffect(() => {
@@ -95,14 +95,18 @@ export const CartItems = () => {
                 if (result.isConfirmed) {
                     await saveCartItems("UPI");
                     await updateMainDataSet();
-                    Swal.fire({
-                        title: "Checked Out!",
-                        text: "Your checkout process done.",
-                        icon: "success"
-                    }).then( async () => {
-                        await clearCart();
-                        window.location.reload();
-                    });
+
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: "Checked Out!",
+                            text: "Your checkout process done.",
+                            icon: "success"
+                        }).then(async () => {
+                            await clearCart();
+                            window.location.reload();
+                        });
+                    }, 10000);
+
                     handlePayment();
                 }
             });
@@ -129,7 +133,7 @@ export const CartItems = () => {
                         title: "Checked Out!",
                         text: "Your checkout process done.",
                         icon: "success"
-                    }).then( async () => {
+                    }).then(async () => {
                         await clearCart();
                         window.location.reload();
                     });
@@ -168,7 +172,7 @@ export const CartItems = () => {
                                     if (cartItem.quantity > 1) {
                                         updateCartItemQuantity(cartItem.id.toString(), cartItem.size, cartItem.quantity - 1);
                                     }
-                                    else if(cartItem.quantity === 1)
+                                    else if (cartItem.quantity === 1)
                                         removeCartItem(cartItem.id.toString(), cartItem.size)
                                 }}
                             />
