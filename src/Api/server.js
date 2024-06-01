@@ -3,7 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,10 +10,12 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB database connection established successfully'))
     .catch((error) => console.error('MongoDB connection error:', error));
 
+// Define Mongoose schemas and models
 const itemSchema = new mongoose.Schema({
     id: String,
     name: String,
@@ -54,6 +55,9 @@ const cartSchema = new mongoose.Schema({
 
 const Cart = mongoose.model('Cart', cartSchema);
 
+// API endpoints
+
+// Get all items
 app.get('/api/items', async (req, res) => {
     try {
         const items = await Item.find();
@@ -63,6 +67,7 @@ app.get('/api/items', async (req, res) => {
     }
 });
 
+// Add new items
 app.post('/api/items', async (req, res) => {
     const items = req.body;
     try {
@@ -75,6 +80,7 @@ app.post('/api/items', async (req, res) => {
     }
 });
 
+// Update item by ID
 app.put('/api/items/:id', async (req, res) => {
     const { id } = req.params;
     const { sizes, price, total_quantity } = req.body;
@@ -96,6 +102,7 @@ app.put('/api/items/:id', async (req, res) => {
     }
 });
 
+// Add or update cart items
 app.post('/api/cart', async (req, res) => {
     const cartItems = req.body;
     try {
@@ -114,6 +121,7 @@ app.post('/api/cart', async (req, res) => {
     }
 });
 
+// Get all cart items
 app.get('/api/cart', async (req, res) => {
     try {
         const cartItems = await Cart.find();
@@ -123,6 +131,7 @@ app.get('/api/cart', async (req, res) => {
     }
 });
 
+// Save cart items
 app.post('/api/cart-items', async (req, res) => {
     const cartItems = req.body;
     try {
@@ -133,6 +142,7 @@ app.post('/api/cart-items', async (req, res) => {
     }
 });
 
+// Get all cart item records
 app.get('/api/cart-items', async (req, res) => {
     try {
         const cartItems = await CartItem.find();
@@ -142,6 +152,7 @@ app.get('/api/cart-items', async (req, res) => {
     }
 });
 
+// Update cart item by product ID and size
 app.put('/api/cart/:id', async (req, res) => {
     const { id } = req.params;
     const { size, quantity } = req.body;
@@ -160,6 +171,7 @@ app.put('/api/cart/:id', async (req, res) => {
     }
 });
 
+// Delete cart item by product ID and size
 app.delete('/api/cart/:id', async (req, res) => {
     const { id } = req.params;
     const { size } = req.body;
@@ -176,6 +188,7 @@ app.delete('/api/cart/:id', async (req, res) => {
     }
 });
 
+// Delete all cart items
 app.delete('/api/cart', async (req, res) => {
     try {
         await Cart.deleteMany({});
@@ -184,13 +197,6 @@ app.delete('/api/cart', async (req, res) => {
         res.status(400).send('Error deleting cart items');
     }
 });
-
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../../build')));
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../../build', 'index.html'));
-    });
-}
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

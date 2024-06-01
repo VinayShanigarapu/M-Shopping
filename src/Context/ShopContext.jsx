@@ -12,19 +12,20 @@ const ShopContextProvider = (props) => {
     const [transactions, setTransactions] = useState([]);
     const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+    // Fetch transaction data
     useEffect(() => {
         const fetchTransactionData = async () => {
             try {
                 const response = await axios.get(`${apiUrl}/api/cart-items`);
                 setTransactions(response.data);
             } catch (error) {
-                console.error('Error fetching Transaction data:', error);
+                console.error('Error fetching transaction data:', error);
             }
         };
-
         fetchTransactionData();
     }, [apiUrl]);
 
+    // Fetch items data
     useEffect(() => {
         const fetchItemsData = async () => {
             try {
@@ -35,10 +36,10 @@ const ShopContextProvider = (props) => {
                 console.error('Error fetching items data:', error);
             }
         };
-
         fetchItemsData();
     }, [apiUrl]);
 
+    // Fetch cart data
     useEffect(() => {
         const fetchCartData = async () => {
             try {
@@ -48,10 +49,10 @@ const ShopContextProvider = (props) => {
                 console.error('Error fetching cart data:', error);
             }
         };
-
         fetchCartData();
     }, [apiUrl]);
 
+    // Fetch products data
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -61,10 +62,10 @@ const ShopContextProvider = (props) => {
                 console.error('Error fetching products data:', error);
             }
         };
-
         fetchData();
     }, [apiUrl]);
 
+    // Calculate total cart amount
     const getTotalCartAmount = () => {
         let totalAmount = 0;
         for (const item of cartItems) {
@@ -76,26 +77,21 @@ const ShopContextProvider = (props) => {
         return totalAmount;
     };
 
+    // Get price by ID and size
     const getPriceByIdAndSize = (id, size) => {
-        if (products) {
-            const item = products.find(product => product.id === id);
-            if (item.sizes[0][size].price)
-                return item.sizes[0][size].price
-        }
+        const product = products.find(product => product.id === id);
+        return product?.sizes[0][size]?.price;
     }
 
+    // Calculate total number of cart items
     const getTotalCartItems = () => {
-        let totalItem = 0;
-        for (const item of cartItems) {
-            totalItem += item.quantity;
-        }
-        return totalItem;
+        return cartItems.reduce((total, item) => total + item.quantity, 0);
     };
 
+    // Update cart item quantity
     const updateCartItemQuantity = async (id, size, quantity) => {
         try {
             await axios.put(`${apiUrl}/api/cart/${id}`, { size, quantity });
-
             setCartItems(prevCartItems =>
                 prevCartItems.map(item =>
                     item.productId === id && item.size === size
@@ -108,10 +104,10 @@ const ShopContextProvider = (props) => {
         }
     };
 
+    // Remove cart item
     const removeCartItem = async (id, size) => {
         try {
             await axios.delete(`${apiUrl}/api/cart/${id}`, { data: { size } });
-
             setCartItems(prevCartItems =>
                 prevCartItems.filter(item => !(item.productId === id && item.size === size))
             );
@@ -120,6 +116,7 @@ const ShopContextProvider = (props) => {
         }
     };
 
+    // Filter products
     const filterProducts = (category, subcategory, itemName) => {
         return products.filter(product => {
             return (
@@ -130,68 +127,61 @@ const ShopContextProvider = (props) => {
         });
     };
 
+    // Update product size
     const updateProductSize = async (productId, size, newQuantity) => {
         try {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-            const updatedSizes = { ...productToUpdate.sizes };
-            if (updatedSizes[0][size]) {
-                updatedSizes[0][size].quantity = newQuantity;
+            const updatedSizes = { ...productToUpdate.sizes[0] };
+            if (updatedSizes[size]) {
+                updatedSizes[size].quantity = newQuantity;
             }
-            console.log(updatedSizes)
 
             await axios.put(`${apiUrl}/api/items/${productId}`, {
-                sizes: updatedSizes[0],
+                sizes: updatedSizes,
             });
 
-            setProducts(prevProducts => {
-                return prevProducts.map(product => {
-                    if (product.id === productId) {
-                        return {
-                            ...product,
-                            sizes: updatedSizes,
-                        };
-                    }
-                    return product;
-                });
-            });
+            setProducts(prevProducts =>
+                prevProducts.map(product =>
+                    product.id === productId
+                        ? { ...product, sizes: [updatedSizes] }
+                        : product
+                )
+            );
         } catch (error) {
             console.error('Error updating product:', error);
         }
     };
 
+    // Update product price
     const updateProductPrice = async (productId, size, newPrice) => {
         try {
             const productToUpdate = products.find(product => product.id === productId);
             if (!productToUpdate) throw new Error("Product not found");
 
-
-            const updatedPrice = { ...productToUpdate.sizes };
-            if (updatedPrice[0][size]) {
-                updatedPrice[0][size].price = newPrice;
+            const updatedSizes = { ...productToUpdate.sizes[0] };
+            if (updatedSizes[size]) {
+                updatedSizes[size].price = newPrice;
             }
 
             await axios.put(`${apiUrl}/api/items/${productId}`, {
-                sizes: updatedPrice[0],
+                sizes: updatedSizes,
             });
 
-            setProducts(prevProducts => {
-                return prevProducts.map(product => {
-                    if (product.id === productId) {
-                        return {
-                            ...product,
-                            price: newPrice,
-                        };
-                    }
-                    return product;
-                });
-            });
+            setProducts(prevProducts =>
+                prevProducts.map(product =>
+                    product.id === productId
+                        ? { ...product, sizes: [updatedSizes] }
+                        : product
+                )
+            );
         } catch (error) {
             console.error('Error updating product:', error);
         }
     };
 
+    // Get transactions summary by date
     const getTransactionsSummary = (date) => {
         const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
         const filteredTransactions = transactions.filter((transaction) => {
@@ -212,17 +202,12 @@ const ShopContextProvider = (props) => {
             acc[time].transactions.push(transaction);
             acc[time].totalQuantity += transaction.quantity;
             acc[time].totalPrice += transaction.subtotal;
-            if (transaction.mode)
-                acc[time].mode = transaction.mode;
+            acc[time].mode = transaction.mode || acc[time].mode;
             return acc;
         }, {});
 
         const sortedTransactionsByTime = Object.entries(transactionsByTime)
-            .sort((a, b) => {
-                const timeA = parse(a[0], 'hh:mm a', new Date());
-                const timeB = parse(b[0], 'hh:mm a', new Date());
-                return timeA - timeB;
-            })
+            .sort((a, b) => parse(a[0], 'hh:mm a', new Date()) - parse(b[0], 'hh:mm a'))
             .map(([time, data]) => ({ time, ...data }));
 
         const grandTotalSales = filteredTransactions.reduce((acc, transaction) => acc + transaction.subtotal, 0);
@@ -235,6 +220,7 @@ const ShopContextProvider = (props) => {
         };
     };
 
+    // Filter transactions by date
     const filterTransactionsByDate = (date) => {
         const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
 
@@ -252,11 +238,11 @@ const ShopContextProvider = (props) => {
             return groups;
         }, {});
 
-        const sortedTransactions = Object.values(groupedTransactions)
+        return Object.values(groupedTransactions)
             .sort((a, b) => b.totalQuantity - a.totalQuantity);
-
-        return sortedTransactions;
     };
+
+    // Update product quantities based on cart details
     const updateDateSet = async (cartDetails) => {
         try {
             const productUpdates = {};
@@ -267,11 +253,9 @@ const ShopContextProvider = (props) => {
 
                 if (productToUpdate) {
                     const updatedSizes = { ...productToUpdate.sizes[0] };
-
                     if (updatedSizes[size] !== undefined) {
-                        updatedSizes[size].quantity = parseInt(parseInt(updatedSizes[size].quantity) - parseInt(quantity));
+                        updatedSizes[size].quantity -= parseInt(quantity, 10);
                     }
-
                     productUpdates[id] = { ...productToUpdate, sizes: updatedSizes };
                 }
             }
@@ -283,20 +267,13 @@ const ShopContextProvider = (props) => {
                 });
             }
 
-            setProducts(prevProducts => {
-                return prevProducts.map(product => {
-                    const updatedProduct = productUpdates[product.id];
-                    if (updatedProduct) {
-                        return updatedProduct;
-                    }
-                    return product;
-                });
-            });
+            setProducts(prevProducts =>
+                prevProducts.map(product => productUpdates[product.id] || product)
+            );
         } catch (error) {
             console.error('Error updating product quantities:', error);
         }
     };
-
 
     const contextValue = {
         data_product,
